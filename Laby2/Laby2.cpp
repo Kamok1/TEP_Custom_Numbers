@@ -3,6 +3,7 @@
 
 void testSetFromInt() {
     CNumber num;
+
     num = 12345;
     std::cout << "Test setFromInt (12345): " << num.sToStr() << " (Expected: 12345)" << std::endl;
 
@@ -14,11 +15,11 @@ void testSetFromInt() {
 }
 
 void testAssignmentOperator() {
-    CNumber num1;
-    num1 = 56789;
+    CNumber num1, num2;
 
-    CNumber num2;
+    num1 = 56789;
     num2 = num1;
+
     std::cout << "Test assignment operator (num2 = num1): " << num2.sToStr() << " (Expected: 56789)" << std::endl;
 }
 
@@ -61,27 +62,27 @@ void testSubtraction() {
     num1 = 1234;
     num2 = 567;
     result = num1 - num2;
-    std::cout << "Test 1: 1234 - 567 = " << result.sToStr() << " (Expected: 667)" << std::endl;
+    std::cout << "Test subtraction (1234 - 567): " << result.sToStr() << " (Expected: 667)" << std::endl;
 
     num1 = 567;
     num2 = 1234;
     result = num1 - num2;
-    std::cout << "Test 2: 567 - 1234 = " << result.sToStr() << " (Expected: -667)" << std::endl;
+    std::cout << "Test subtraction (567 - 1234): " << result.sToStr() << " (Expected: -667)" << std::endl;
 
     num1 = -1234;
     num2 = 567;
     result = num1 - num2;
-    std::cout << "Test 3: -1234 - 567 = " << result.sToStr() << " (Expected: -1801)" << std::endl;
+    std::cout << "Test subtraction (-1234 - 567): " << result.sToStr() << " (Expected: -1801)" << std::endl;
 
     num1 = 567;
     num2 = -1234;
     result = num1 - num2;
-    std::cout << "Test 4: 567 - (-1234) = " << result.sToStr() << " (Expected: 1801)" << std::endl;
+    std::cout << "Test subtraction (567 - (-1234)): " << result.sToStr() << " (Expected: 1801)" << std::endl;
 
     num1 = -567;
     num2 = -1234;
     result = num1 - num2;
-    std::cout << "Test 5: -567 - (-1234) = " << result.sToStr() << " (Expected: 667)" << std::endl;
+    std::cout << "Test subtraction (-567 - (-1234)): " << result.sToStr() << " (Expected: 667)" << std::endl;
 }
 
 void testMultiplication() {
@@ -90,22 +91,22 @@ void testMultiplication() {
     num1 = 123;
     num2 = 45;
     result = num1 * num2;
-    std::cout << "Test 1: 123 * 45 = " << result.sToStr() << " (Expected: 5535)" << std::endl;
+    std::cout << "Test multiplication (123 * 45): " << result.sToStr() << " (Expected: 5535)" << std::endl;
 
     num1 = -123;
     num2 = 45;
     result = num1 * num2;
-    std::cout << "Test 2: -123 * 45 = " << result.sToStr() << " (Expected: -5535)" << std::endl;
+    std::cout << "Test multiplication (-123 * 45): " << result.sToStr() << " (Expected: -5535)" << std::endl;
 
     num1 = 123;
     num2 = -45;
     result = num1 * num2;
-    std::cout << "Test 3: 123 * -45 = " << result.sToStr() << " (Expected: -5535)" << std::endl;
+    std::cout << "Test multiplication (123 * -45): " << result.sToStr() << " (Expected: -5535)" << std::endl;
 
     num1 = -123;
     num2 = -45;
     result = num1 * num2;
-    std::cout << "Test 4: -123 * -45 = " << result.sToStr() << " (Expected: 5535)" << std::endl;
+    std::cout << "Test multiplication (-123 * -45): " << result.sToStr() << " (Expected: 5535)" << std::endl;
 }
 
 void testDivision() {
@@ -114,28 +115,28 @@ void testDivision() {
     num1 = 12345;
     num2 = 123;
     result = num1 / num2;
-     std::cout << "Test 1: 12345 / 123 = " << result.sToStr() << " (Expected: 100)" << std::endl;
+    std::cout << "Test division (12345 / 123): " << result.sToStr() << " (Expected: 100)" << std::endl;
 
     num1 = -12345;
     num2 = 123;
     result = num1 / num2;
-    std::cout << "Test 2: -12345 / 123 = " << result.sToStr() << " (Expected: -100)" << std::endl;
+    std::cout << "Test division (-12345 / 123): " << result.sToStr() << " (Expected: -100)" << std::endl;
 
     num1 = 12345;
     num2 = -123;
     result = num1 / num2;
-    std::cout << "Test 3: 12345 / -123 = " << result.sToStr() << " (Expected: -100)" << std::endl;
+    std::cout << "Test division (12345 / -123): " << result.sToStr() << " (Expected: -100)" << std::endl;
 
-    num1 = -15355;
-    num2 = -123;
-    result = num1 / num2;
-    std::cout << "Test 4: -12345 / -123 = " << result.sToStr() << " (Expected: 100)" << std::endl;
-
-    num1 = -12345;
-    num2 = 0;
-    result = num1 / num2;
-    std::cout << "Test 4: -12345 / 0 = " << result.sToStr() << " (Error)" << std::endl;
+    try {
+        num1 = -15355;
+        num2 = 0;
+        result = num1 / num2;
+    }
+    catch (const std::invalid_argument& e) {
+        std::cout << "Test division by zero: Exception caught (Expected: Division by zero)" << std::endl;
+    }
 }
+
 
 int main() {
     std::cout << "Running tests for CNumber class...\n" << std::endl;

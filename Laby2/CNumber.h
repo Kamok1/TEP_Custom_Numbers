@@ -9,19 +9,19 @@ public:
     CNumber(int value = DEFAULT_VALUE);
     ~CNumber();
 
-    CNumber(const CNumber& other);
+    CNumber(const CNumber& pcOther);
 
     void operator=(const CNumber& pcOther);
 
     void operator=(int iValue);
 
-    CNumber operator+(const CNumber& other) const;
-    CNumber operator-(const CNumber& other) const;
-    CNumber operator*(const CNumber& other) const;
-    CNumber operator/(const CNumber& other) const;
+    CNumber operator+(const CNumber& pcOther) const;
+    CNumber operator-(const CNumber& pcOther) const;
+    CNumber operator*(const CNumber& pcOther) const;
+    CNumber operator/(const CNumber& pcOther) const;
 
-    bool operator<(const CNumber& other) const;
-    bool operator==(const CNumber& other) const;
+    bool operator<(const CNumber& pcOther) const;
+    bool operator==(const CNumber& pcOther) const;
 
     CNumber abs() const;
     std::string sToStr() const;

@@ -1,7 +1,7 @@
 ﻿#include "CNumber.h"
 #include <cmath>
 #include <string>
-
+#include <stdexcept>
 
 CNumber::CNumber(int value) {
     setFromInt(value);
@@ -14,23 +14,19 @@ CNumber::~CNumber() {
     }
 }
 
-void CNumber::operator=(const int iValue) {
-    setFromInt(iValue);
-}
-
-CNumber::CNumber(const CNumber& other) {
-    i_length = other.i_length;
-    is_below_0 = other.is_below_0;
+CNumber::CNumber(const CNumber& pcOther) {
+    i_length = pcOther.i_length;
+    is_below_0 = pcOther.is_below_0;
     pi_table = new int[i_length];
     for (int i = 0; i < i_length; ++i) {
-        pi_table[i] = other.pi_table[i];
+        pi_table[i] = pcOther.pi_table[i];
     }
     removeLeadingZeros();
 }
 
 void CNumber::operator=(const CNumber& pcOther) {
     if (this == &pcOther) {
-        return;  
+        return;
     }
 
     delete[] pi_table;
@@ -45,10 +41,22 @@ void CNumber::operator=(const CNumber& pcOther) {
     removeLeadingZeros();
 }
 
+void CNumber::operator=(int iValue) {
+    setFromInt(iValue);
+}
 
 CNumber CNumber::operator+(const CNumber& pcOther) const {
     if (is_below_0 != pcOther.is_below_0) {
-        return *this - pcOther.abs();
+        if (abs() < pcOther.abs()) {
+            CNumber result = pcOther.abs() - abs();
+            result.is_below_0 = pcOther.is_below_0;
+            return result;
+        }
+        else {
+            CNumber result = abs() - pcOther.abs();
+            result.is_below_0 = is_below_0;
+            return result;
+        }
     }
 
     int maxLength = std::max(i_length, pcOther.i_length);
@@ -65,9 +73,7 @@ CNumber CNumber::operator+(const CNumber& pcOther) const {
     int k = result.i_length - 1;
 
     while (i >= 0 || j >= 0 || carry > 0) {
-        int sum = carry;
-        if (i >= 0) sum += pi_table[i--];
-        if (j >= 0) sum += pcOther.pi_table[j--];
+        int sum = carry + (i >= 0 ? pi_table[i--] : 0) + (j >= 0 ? pcOther.pi_table[j--] : 0);
         result.pi_table[k--] = sum % 10;
         carry = sum / 10;
     }
@@ -75,13 +81,10 @@ CNumber CNumber::operator+(const CNumber& pcOther) const {
     return result;
 }
 
-
 CNumber CNumber::operator-(const CNumber& pcOther) const {
-    if (!is_below_0 && pcOther.is_below_0)
-        return *this + pcOther.abs();
-  
-    if (is_below_0 && pcOther.is_below_0)
-        return pcOther.abs() - abs();
+    if (!is_below_0 && pcOther.is_below_0) return *this + pcOther.abs();
+
+    if (is_below_0 && pcOther.is_below_0) return pcOther.abs() - abs();
 
     if (is_below_0 && !pcOther.is_below_0) {
         CNumber result = abs() + pcOther;
@@ -89,73 +92,38 @@ CNumber CNumber::operator-(const CNumber& pcOther) const {
         return result;
     }
 
-
     bool is_result_below_0 = false;
-    const CNumber* bigger_number = this;
-    const CNumber* smaller_number = &pcOther;
+    CNumber bigger_number = *this;
+    CNumber smaller_number = pcOther;
 
     if (*this < pcOther) {
         is_result_below_0 = true;
-        bigger_number = &pcOther;
-        smaller_number = this;
+        bigger_number = pcOther;
+        smaller_number = *this;
     }
 
     CNumber result;
-    result.setNewSize(std::max(bigger_number->i_length, smaller_number->i_length));
-   
+    result.setNewSize(std::max(bigger_number.i_length, smaller_number.i_length));
 
     int borrow = 0;
-    int i = bigger_number->i_length - 1;
-    int j = smaller_number->i_length - 1;
+    int i = bigger_number.i_length - 1;
+    int j = smaller_number.i_length - 1;
     int k = result.i_length - 1;
 
     while (i >= 0 || j >= 0) {
-        int sub = (i >= 0 ? bigger_number->pi_table[i--] : 0) - (j >= 0 ? smaller_number->pi_table[j--] : 0) - borrow;
+        int sub = (i >= 0 ? bigger_number.pi_table[i--] : 0) - (j >= 0 ? smaller_number.pi_table[j--] : 0) - borrow;
 
         if (sub < 0) {
             sub += 10;
             borrow = 1;
         }
-        else {
-            borrow = 0;
-        }
+        else borrow = 0;
 
         result.pi_table[k--] = sub;
     }
 
     result.is_below_0 = is_result_below_0;
     return result;
-}
-
-
-bool CNumber::operator<(const CNumber& other) const {
-    if (is_below_0 != other.is_below_0)
-        return is_below_0;
-
-    if (!is_below_0) {
-        if (i_length != other.i_length) {
-            return i_length < other.i_length;
-        }
-
-        for (int i = 0; i < i_length; ++i) {
-            if (pi_table[i] != other.pi_table[i]) {
-                return pi_table[i] < other.pi_table[i];
-            }
-        }
-    }
-
-    else {
-        if (i_length != other.i_length)
-            return i_length > other.i_length;
-
-        for (int i = 0; i < i_length; ++i) {
-            if (pi_table[i] != other.pi_table[i]) {
-                return pi_table[i] > other.pi_table[i];
-            }
-        }
-    }
-
-    return false;
 }
 
 CNumber CNumber::operator*(const CNumber& pcOther) const {
@@ -177,40 +145,111 @@ CNumber CNumber::operator*(const CNumber& pcOther) const {
     return result;
 }
 
-CNumber CNumber::operator/(const CNumber& pcOther) const {
-    CNumber dividend = abs();
-    CNumber divisor = pcOther.abs();
-    CNumber quotient;
-    quotient.setFromInt(0);
+CNumber CNumber::operator/(const CNumber& denominator) const {
+    CNumber zero(0);
+    if (denominator == zero || *this == zero) throw std::invalid_argument("Division by zero");
+    CNumber numerator = abs();
+    CNumber denominatorAbs = denominator.abs();
+    CNumber result;
+    result.setFromInt(0);
 
-    if (dividend < divisor) {
-        return quotient; 
-    }
+    if (numerator < denominatorAbs) return result;
 
-    CNumber current(0);
+    CNumber currentValue(0);
     CNumber ten(10);
     CNumber one(1);
 
-    for (int i = 0; i < dividend.i_length; ++i) {
-        CNumber currentNumber;
-        currentNumber.setFromInt(dividend.pi_table[i]);
-        current = ((current * ten) + currentNumber);
+    for (int i = 0; i < numerator.i_length; ++i) {
+        CNumber currentDigit;
+        currentDigit.setFromInt(numerator.pi_table[i]);
+        currentValue = ((currentValue * ten) + currentDigit);
         CNumber count(0);
 
-        while (divisor < current || divisor == current) {
-            current = current - divisor;
+        while (denominatorAbs < currentValue || denominatorAbs == currentValue) {
+            currentValue = currentValue - denominatorAbs;
             count = count + one;
         }
 
-        quotient = quotient * ten + count;
+        result = result * ten + count;
     }
 
-    quotient.is_below_0 = (is_below_0 != pcOther.is_below_0);
-    quotient.removeLeadingZeros();
-    return quotient;
+    result.is_below_0 = (is_below_0 != denominator.is_below_0);
+    result.removeLeadingZeros();
+    return result;
 }
 
 
+bool CNumber::operator<(const CNumber& pcOther) const {
+    if (is_below_0 != pcOther.is_below_0) return is_below_0;
+
+    if (!is_below_0) {
+        if (i_length != pcOther.i_length) return i_length < pcOther.i_length;
+
+        for (int i = 0; i < i_length; ++i) {
+            if (pi_table[i] != pcOther.pi_table[i]) return pi_table[i] < pcOther.pi_table[i];
+        }
+    }
+
+    else {
+        if (i_length != pcOther.i_length)  return i_length > pcOther.i_length;
+
+        for (int i = 0; i < i_length; ++i) {
+            if (pi_table[i] != pcOther.pi_table[i]) {
+                return pi_table[i] > pcOther.pi_table[i];
+            }
+        }
+    }
+
+    return false;
+}
+
+bool CNumber::operator==(const CNumber& pcOther) const {
+    if (i_length != pcOther.i_length || is_below_0 != pcOther.is_below_0) return false;
+
+    for (int i = 0; i < i_length; ++i) {
+        if (pi_table[i] != pcOther.pi_table[i]) return false;
+    }
+
+    return true;
+}
+
+CNumber CNumber::abs() const {
+    CNumber result = *this;
+    result.is_below_0 = false;
+    return result;
+}
+
+std::string CNumber::sToStr() const {
+    std::string result;
+    int i = 0;
+
+    while (i < i_length && pi_table[i] == 0) {
+        i++;
+    }
+
+    if (i == i_length) return "0";
+
+    if (is_below_0) result += "-";
+
+    for (int j = i; j < i_length; ++j) {
+        result += std::to_string(pi_table[j]);
+    }
+
+    return result;
+}
+
+bool CNumber::setNewSize(int size) {
+    if (size <= 0) return false;
+    int* newTable = new int[size]();
+    int copyLength = std::min(size, i_length);
+    for (int i = 0; i < copyLength; ++i) {
+        newTable[i] = pi_table[i];
+    }
+    delete[] pi_table;
+    pi_table = newTable;
+    i_length = size;
+    return true;
+}
 
 void CNumber::setFromInt(int value) {
     delete[] pi_table;
@@ -231,27 +270,6 @@ void CNumber::setFromInt(int value) {
         pi_table[i] = value % 10;
         value /= 10;
     }
-}
-
-
-
-std::string CNumber::sToStr() const {
-    std::string result;
-    int i = 0;
-
-    while (i < i_length && pi_table[i] == 0) {
-        i++;
-    }
-
-    if (i == i_length) return "0";
-
-    if (is_below_0) result += "-";
-
-    for (int j = i; j < i_length; ++j) {
-        result += std::to_string(pi_table[j]);
-    }
-
-    return result;
 }
 
 void CNumber::removeLeadingZeros() {
@@ -276,36 +294,3 @@ void CNumber::removeLeadingZeros() {
         i_length = newLength;
     }
 }
-
-CNumber CNumber::abs() const {
-    CNumber result = *this;
-    result.is_below_0 = false;
-    return result;
-}
-
-bool CNumber::operator==(const CNumber& other) const {
-    if (i_length != other.i_length || is_below_0 != other.is_below_0)
-        return false;
-
-    for (int i = 0; i < i_length; ++i) {
-        if (pi_table[i] != other.pi_table[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool CNumber::setNewSize(int size) {
-    if (size <= 0) return false;
-    int* newTable = new int[size]();
-    int copyLength = std::min(size, i_length);
-    for (int i = 0; i < copyLength; ++i) {
-        newTable[i] = pi_table[i];
-    }
-    delete[] pi_table;
-    pi_table = newTable;
-    i_length = size;
-    return true;
-}
-
