@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 #include <stdexcept>
+#include <iostream>
 
 CNumber::CNumber(int value) {
     setFromInt(value);
@@ -25,9 +26,7 @@ CNumber::CNumber(const CNumber& pcOther) {
 }
 
 void CNumber::operator=(const CNumber& pcOther) {
-    if (this == &pcOther) {
-        return;
-    }
+    if (this == &pcOther) return;
 
     delete[] pi_table;
 
@@ -157,16 +156,16 @@ CNumber CNumber::operator/(const CNumber& denominator) const {
 
     CNumber currentValue(0);
     CNumber ten(10);
-    CNumber one(1);
+    CNumber one(1); 
 
     for (int i = 0; i < numerator.i_length; ++i) {
         CNumber currentDigit;
         currentDigit.setFromInt(numerator.pi_table[i]);
         currentValue = ((currentValue * ten) + currentDigit);
         CNumber count(0);
-
         while (denominatorAbs < currentValue || denominatorAbs == currentValue) {
             currentValue = currentValue - denominatorAbs;
+            
             count = count + one;
         }
 
@@ -228,9 +227,7 @@ std::string CNumber::sToStr() const {
     }
 
     if (i == i_length) return "0";
-
     if (is_below_0) result += "-";
-
     for (int j = i; j < i_length; ++j) {
         result += std::to_string(pi_table[j]);
     }
@@ -245,6 +242,7 @@ bool CNumber::setNewSize(int size) {
     for (int i = 0; i < copyLength; ++i) {
         newTable[i] = pi_table[i];
     }
+
     delete[] pi_table;
     pi_table = newTable;
     i_length = size;
