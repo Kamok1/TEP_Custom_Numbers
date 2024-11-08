@@ -125,22 +125,40 @@ CNumber CNumber::operator-(const CNumber& pcOther) const {
     return result;
 }
 
-CNumber CNumber::operator*(const CNumber& pcOther) const {
-    int resultLength = i_length + pcOther.i_length;
+CNumber CNumber::operator*(const CNumber& multiplier) const {
+    int resultLength = i_length + multiplier.i_length;
     CNumber result;
     result.setNewSize(resultLength);
-    result.is_below_0 = (is_below_0 != pcOther.is_below_0);
+    result.is_below_0 = (is_below_0 != multiplier.is_below_0);
 
     for (int i = i_length - 1; i >= 0; --i) {
         int carry = 0;
-        for (int j = pcOther.i_length - 1; j >= 0; --j) {
-            int product = pi_table[i] * pcOther.pi_table[j] + result.pi_table[i + j + 1] + carry;
+        for (int j = multiplier.i_length - 1; j >= 0; --j) {
+            int product = pi_table[i] * multiplier.pi_table[j] + result.pi_table[i + j + 1] + carry;
             result.pi_table[i + j + 1] = product % 10;
             carry = product / 10;
         }
         result.pi_table[i] += carry;
     }
 
+    return result;
+}
+
+CNumber CNumber::operator^(const CNumber& power) const{
+    CNumber zero(0);
+    if(power < zero) throw std::invalid_argument("Power smaller than 0");
+    CNumber one(1);
+    if(power == zero) return one;
+    if (*this == zero) return zero
+
+    CNumber result(*this);
+    CNumber numerator(power);
+
+    while ((numerator == one) == false)
+    {
+        result = result * (*this);
+        numerator = numerator - one;
+    }
     return result;
 }
 
@@ -211,6 +229,7 @@ bool CNumber::operator==(const CNumber& pcOther) const {
 
     return true;
 }
+
 
 CNumber CNumber::abs() const {
     CNumber result = *this;

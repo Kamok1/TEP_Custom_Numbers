@@ -17,8 +17,9 @@ public:
 
     CNumber operator+(const CNumber& pcOther) const;
     CNumber operator-(const CNumber& pcOther) const;
-    CNumber operator*(const CNumber& pcOther) const;
-    CNumber operator/(const CNumber& pcOther) const;
+    CNumber operator*(const CNumber& multiplier) const;
+    CNumber operator/(const CNumber& denominator) const;
+    CNumber operator^(const CNumber& power) const;
 
     bool operator<(const CNumber& pcOther) const;
     bool operator==(const CNumber& pcOther) const;

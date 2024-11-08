@@ -107,6 +107,11 @@ void testMultiplication() {
     num2 = -45;
     result = num1 * num2;
     std::cout << "-123 * -45 -> " << result.sToStr() << " (Oczekiwane: 5535)" << std::endl;
+
+    num1 = 10;
+    num2 = 10;
+    result = num1 * num2;
+    std::cout << "10 * 10 -> " << result.sToStr() << " (Oczekiwane: 100)" << std::endl;
 }
 
 void testDivision() {
@@ -137,6 +142,57 @@ void testDivision() {
     }
 }
 
+void testPower() {
+    CNumber num1, num2, result;
+
+    num1 = 2;
+    num2 = 2;
+    result = num1^num2;
+    std::cout << "2 ^ 2 -> " << result.sToStr() << " (Oczekiwane: 4)" << std::endl;
+
+    num1 = 2;
+    num2 = 3;
+    result = num1 ^ num2;
+    std::cout << "2 ^ 3 -> " << result.sToStr() << " (Oczekiwane: 8)" << std::endl;
+
+    num1 = 2;
+    num2 = 4;
+    result = num1 ^ num2;
+    std::cout << "2 ^ 4 -> " << result.sToStr() << " (Oczekiwane: 16)" << std::endl;
+
+    num1 = 10;
+    num2 = 2;
+    result = num1 ^ num2;
+    std::cout << "10 ^ 2 -> " << result.sToStr() << " (Oczekiwane: 100)" << std::endl;
+    std::cout << "Num1 -> " << num1.sToStr() << std::endl;
+    std::cout << "Num2 -> " << num2.sToStr() << std::endl;
+
+    num1 = 100;
+    num2 = 100;
+    result = num1 ^ num2;
+    std::cout << "100 ^ 100 -> " << result.sToStr() << " (Oczekiwane: Duzo)" << std::endl;
+
+    num1 = 10;
+    num2 = 0;
+    result = num1 ^ num2;
+    std::cout << "10 ^ 0 -> " << result.sToStr() << " (Oczekiwane: 1)" << std::endl;
+
+    num1 = 0;
+    num2 = 1;
+    result = num1 ^ num2;
+    std::cout << "0 ^ 1 -> " << result.sToStr() << " (Oczekiwane: 0)" << std::endl;
+
+    try {
+        num1 = -15355;
+        num2 = -1;
+        result = num1^num2;
+    }
+    catch (const std::invalid_argument& e) {
+        std::cout << "Wyjatek" << std::endl;
+    }
+
+}
+
 
 int main() {
     testSetFromInt();
@@ -146,5 +202,6 @@ int main() {
     testSubtraction();
     testMultiplication();
     testDivision();
+    testPower();
     return 0;
 }
